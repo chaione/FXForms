@@ -107,6 +107,7 @@ UIKIT_EXTERN NSString *const FXFormFieldTypeImage; //image
 
 @property (nonatomic, readonly) id<FXForm> form;
 @property (nonatomic, readonly) NSString *key;
+@property (nonatomic, readonly) NSArray *options;
 @property (nonatomic, readonly) NSString *type;
 @property (nonatomic, readonly) NSString *title;
 @property (nonatomic, readonly) id placeholder;
