@@ -2578,6 +2578,42 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     return view;
 }
 
+- (NSIndexPath *)indexPathForPreviousCell
+{
+    UITableView *tableView = [self tableView];
+    NSIndexPath *indexPath = [tableView indexPathForCell:self];
+    if (indexPath)
+    {
+        //get previous indexpath
+        if (indexPath.row > 0)
+        {
+            return [NSIndexPath indexPathForRow:indexPath.row - 1 inSection:indexPath.section];
+        }
+        else if (indexPath.section > 0)
+        {
+            NSInteger newSection = indexPath.section;
+            NSInteger numberOfRowsInNewSection = [tableView.dataSource tableView:tableView numberOfRowsInSection:newSection];
+
+            if (numberOfRowsInNewSection > 0) {
+                return [NSIndexPath indexPathForRow:numberOfRowsInNewSection - 1 inSection:indexPath.section - 1];
+            }
+        }
+    }
+    return nil;
+}
+
+- (UITableViewCell <FXFormFieldCell> *)previousCell
+{
+    UITableView *tableView = [self tableView];
+    NSIndexPath *indexPath = [self indexPathForPreviousCell];
+    if (indexPath)
+    {
+        //get previous cell
+        return (UITableViewCell <FXFormFieldCell> *)[tableView cellForRowAtIndexPath:indexPath];
+    }
+    return nil;
+}
+
 - (NSIndexPath *)indexPathForNextCell
 {
     UITableView *tableView = [self tableView];

@@ -203,6 +203,9 @@ UIKIT_EXTERN NSString *const FXFormFieldTypeImage; //image
 - (void)update;
 - (void)didSelectWithTableView:(UITableView *)tableView
                     controller:(UIViewController *)controller;
+- (UITableViewCell <FXFormFieldCell> *)previousCell;
+- (UITableViewCell <FXFormFieldCell> *)nextCell;
+
 @end
 
 
