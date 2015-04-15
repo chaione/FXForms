@@ -2333,6 +2333,8 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
 
 - (void)keyboardWillShow:(NSNotification *)note
 {
+    UIView *firstResponder = FXFormsFirstResponder(self.tableView);
+
     UITableViewCell *cell = [self cellContainingView:FXFormsFirstResponder(self.tableView)];
     if (cell && ![self.delegate isKindOfClass:[UITableViewController class]])
     {
@@ -2340,13 +2342,13 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         CGRect keyboardFrame = [keyboardInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
         keyboardFrame = [self.tableView.window convertRect:keyboardFrame toView:self.tableView.superview];
         CGFloat inset = self.tableView.frame.origin.y + self.tableView.frame.size.height - keyboardFrame.origin.y;
-        
+
         UIEdgeInsets tableContentInset = self.tableView.contentInset;
         tableContentInset.bottom = inset;
-        
+
         UIEdgeInsets tableScrollIndicatorInsets = self.tableView.scrollIndicatorInsets;
         tableScrollIndicatorInsets.bottom = inset;
-        
+
         //animate insets
         [UIView beginAnimations:nil context:nil];
         [UIView setAnimationCurve:(UIViewAnimationCurve)keyboardInfo[UIKeyboardAnimationCurveUserInfoKey]];
@@ -2354,7 +2356,12 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         self.tableView.contentInset = tableContentInset;
         self.tableView.scrollIndicatorInsets = tableScrollIndicatorInsets;
         NSIndexPath *selectedRow = [self.tableView indexPathForCell:cell];
-        [self.tableView scrollToRowAtIndexPath:selectedRow atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+        if ([firstResponder isKindOfClass:[UITextView class]]) {
+            CGRect targetRect = [self.tableView convertRect:firstResponder.frame fromView:firstResponder.superview];
+            [self.tableView scrollRectToVisible:targetRect animated:UITableViewScrollPositionBottom];
+        } else {
+            [self.tableView scrollToRowAtIndexPath:selectedRow atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+        }
         [UIView commitAnimations];
     }
 }
@@ -2365,13 +2372,13 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     if (cell && ![self.delegate isKindOfClass:[UITableViewController class]])
     {
         NSDictionary *keyboardInfo = [note userInfo];
-        
+
         UIEdgeInsets tableContentInset = self.tableView.contentInset;
         tableContentInset.bottom = 0;
-        
+
         UIEdgeInsets tableScrollIndicatorInsets = self.tableView.scrollIndicatorInsets;
         tableScrollIndicatorInsets.bottom = 0;
-        
+
         //restore insets
         [UIView beginAnimations:nil context:nil];
         [UIView setAnimationCurve:(UIViewAnimationCurve)keyboardInfo[UIKeyboardAnimationCurveUserInfoKey]];
