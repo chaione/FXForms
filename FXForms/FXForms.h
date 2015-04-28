@@ -280,3 +280,36 @@ UIKIT_EXTERN NSString *const FXFormFieldTypeImage; //image
 
 #pragma clang diagnostic pop
 
+#import <Foundation/Foundation.h>
+
+/**
+ *  This category class provides runtime properties necessary for proper keyboard manipulation for UITextInput instances.
+ *  While certain UITextInput becomes first responder and keyboard pops up, you want to scroll the view and make sure that
+ *  certain vital area to be visible.
+ *
+ *  In the basic case, if the UITextInput is on FXForms based UITableViewCell, FXForms handles it automatically
+ *  so that the bottom of the UITableViewCell that contains the first responder to be visible.
+ *
+ *  However, this automatic behavior is not sufficient for some cases like
+ *      - you have big UITextView that may overflow the screen (The beginning of UITextView will be hidden if you automatically scroll to the bottom)
+ *      - you have many UITextInput that may overflow the screen (The first UITextInput will be hidden if you automatically scroll to the bottom)
+ *
+ *  In such case, by storying visibleRectWhileEditing, and visibleRectSourceViewWhileEditing, FXForms tries to show the bottom of visibleRectWhileEditing.
+ *  If visibleRectWhileEditing is not provided, but visibleRectSourceViewWhileEditing is, FXForms assumes that visibleRectWhileEditing is same as
+ *  visibleRectSourceViewWhileEditing.bounds.
+ */
+@interface UIView (UITextInput)
+
+/**
+ *  The frame you want to make sure to be visible while this UIView (UITextInput) is first responder.
+ *  The coordinate of the frame is of visibleRectSourceViewWhileEditing.
+ */
+@property (nonatomic) CGRect visibleRectWhileEditing;
+
+/**
+ *  The UIView that provides coordinate for visibleRectWhileEditing.
+ *  If visibleRectWhileEditing is empty or CGRectZero, FXForms assumes that visibleRectWhileEditing = visibleRectSourceViewWhileEditing.bounds.
+ */
+@property (nonatomic, strong) UIView *visibleRectSourceViewWhileEditing;
+
+@end

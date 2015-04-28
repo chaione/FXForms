@@ -2356,8 +2356,14 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         self.tableView.contentInset = tableContentInset;
         self.tableView.scrollIndicatorInsets = tableScrollIndicatorInsets;
         NSIndexPath *selectedRow = [self.tableView indexPathForCell:cell];
-        if ([firstResponder isKindOfClass:[UITextView class]]) {
-            CGRect targetRect = [self.tableView convertRect:firstResponder.frame fromView:firstResponder.superview];
+
+        UIView *visibleRectSourceView = [firstResponder visibleRectSourceViewWhileEditing];
+        CGRect visibleRect = [firstResponder visibleRectWhileEditing];
+        if (visibleRectSourceView) {
+            if (CGRectIsEmpty(visibleRect)) {
+                visibleRect = visibleRectSourceView.bounds;
+            }
+            CGRect targetRect = [self.tableView convertRect:visibleRect fromView:visibleRectSourceView];
             [self.tableView scrollRectToVisible:targetRect animated:UITableViewScrollPositionBottom];
         } else {
             [self.tableView scrollToRowAtIndexPath:selectedRow atScrollPosition:UITableViewScrollPositionBottom animated:NO];
@@ -3687,8 +3693,38 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     {
         [self.field setOptionSelected:(selectedIndex == i) atIndex:i];
     }
-    
+
     if (self.field.action) self.field.action(self);
+}
+
+@end
+
+const static void *UIViewVisibleRectWhileEditing = &UIViewVisibleRectWhileEditing;
+const static void *UIViewVisibleRectSourceViewWhileEditing = &UIViewVisibleRectSourceViewWhileEditing;
+
+@implementation UIView (UITextInput)
+
+- (CGRect)visibleRectWhileEditing {
+    NSValue *visibleRectValue = objc_getAssociatedObject(self, UIViewVisibleRectWhileEditing);
+
+    if (visibleRectValue == nil) {
+        return CGRectZero;
+    }
+
+    return visibleRectValue.CGRectValue;
+}
+
+- (void)setVisibleRectWhileEditing:(CGRect)visibleRectWhileEditing {
+    NSValue *rectValue = [NSValue valueWithCGRect:visibleRectWhileEditing];
+    objc_setAssociatedObject(self, UIViewVisibleRectWhileEditing, rectValue, OBJC_ASSOCIATION_RETAIN);
+}
+
+- (UIView *)visibleRectSourceViewWhileEditing {
+    return objc_getAssociatedObject(self, UIViewVisibleRectSourceViewWhileEditing);
+}
+
+- (void)setVisibleRectSourceViewWhileEditing:(UIView *)visibleRectSourceViewWhileEditing {
+    objc_setAssociatedObject(self, UIViewVisibleRectSourceViewWhileEditing, visibleRectSourceViewWhileEditing, OBJC_ASSOCIATION_ASSIGN);
 }
 
 @end
